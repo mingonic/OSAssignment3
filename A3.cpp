@@ -1,10 +1,11 @@
 #include <stdio.h>
-//#include <iostrean>
-#include <thread>
+//#include "stdafx.h"
+#include <iostream>
+#include <pthread.h>
 #include <queue>
 #include <mutex>
 
-//using namespace std;
+using namespace std;
 
 queue<int> patients;
 int seats = 0;
@@ -21,19 +22,21 @@ void doctorState()
     {
         if (!patients.empty())
         {
-            cout << "\nPatient " << patients.front()  << " is getting treatment";
+            printf("\nPatient %d is getting treatment.", patients.front());
+            // cout << "\nPatient " << patients.front()  << " is getting treatment";
             patients.pop();
             break;
         }
         else
         {
-            count << "\n Doctor is sleeping";
+            printf("\nDoctor is sleeping");
+            //count << "\n Doctor is sleeping";
             break;
         }
     }
 }
 
-void patientHandler(int i)
+void *patientHandler(void *i)
 {
     while (true)
     {
@@ -49,12 +52,15 @@ void patientHandler(int i)
         else if (seats < 3)
         {
             sts.lock();
-            cout << "\n Patient " << i << " waiting. Seats Occupied " << ++seats;
+            printf("\n Patient %d waiting. Seats Occupied", i);
+            seats++;
+            //cout << "\n Patient " << i << " waiting. Seats Occupied " << ++seats;
             sts.unlock();
         }
         else
         {
-            cout << "\n Patient " << i << "drinking coffee for " << i << " seconds";
+            printf("\n Patient %d drinking coffee for %d seconds.", i, i);
+            //cout << "\n Patient " << i << "drinking coffee for " << i << " seconds";
             this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
@@ -62,17 +68,20 @@ void patientHandler(int i)
 
 int main()
 {
-    thread p[4];
-    for (int i = 0; i < 4; i++)
-    {
-        p[i] = Thread(patientHandler, i);
-        patients.push(i);
-    }
-    thread doct(doctorState);
+    pthread thread1, thread2, thread3, thread4, threadD;
+    int i1, i2, i3, i4, iD;
 
-    for(int i = 0; i < 4; i++)
-    {
-        p[i].join();
-    }
-    doct.join();
+    i1 = pthread_create( &thread1, NULL, patientHandler, (void*) 1);
+    i2 = pthread_create( &thread2, NULL, patientHandler, (void*) 2);
+    i3 = pthread_create( &thread3, NULL, patientHandler, (void*) 3);
+    i4 = pthread_create( &thread4, NULL, patientHandler, (void*) 4);
+
+    iD = pthread_create( &threadD, NULL, doct, doctorState);
+
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+    pthread_join(thread4, NULL);
+    pthread_join(threadD, NULL);
+
 }
