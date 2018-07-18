@@ -1,6 +1,7 @@
 #include <stdio.h>
 //#include "stdafx.h"
 #include <iostream>
+#include <pthread.h>
 #include <thread>
 #include <queue>
 #include <mutex>
@@ -22,8 +23,9 @@ void doctorState()
     {
         if (!patients.empty())
         {
-
-            cout << "\nPatient " << patients.front()  << " is getting treatment.";
+            int r = (rand() % 10) + 1;
+            cout << "\nPatient " << patients.front()  << " is getting treatment for " << r << " seconds.";
+            this_thread::sleep_for(std::chrono::seconds(r));
             patients.pop();
             break;
         }
@@ -41,6 +43,7 @@ void patientHandler(int i)
     {
         if (doct.try_lock())
         {
+            doct.lock();
             sts.lock();
             seats--;
             sts.unlock();
@@ -51,22 +54,15 @@ void patientHandler(int i)
         else if (seats < 3)
         {
             sts.lock();
-            cout << "\nPatient " << i << " waiting. Seats Occupied. " << ++seats <<" seats full.";
-            if (seats < 0){
-              cout << ++seats <<" seats full.";
-            }
-            else{
-              int temp = ++seats;
-              temp = temp * -1;
-              cout << temp <<" seats empty.";
-            }
+            seats++;
+            cout << "\nPatient " << i << " waiting. Seats Occupied: " << seats;
             sts.unlock();
         }
         else
         {
-            cout << "\nPatient " << i << " drinking coffee for " << i << " seconds.";
-            this_thread::sleep_for(std::chrono::seconds(1));
-            //std::this_thread::sleep_for (std::chrono::seconds(1));
+            int r = (rand() % i) + 1;
+            cout << "\nPatient " << i << " drinking coffee for " << r << " seconds.";
+            this_thread::sleep_for(std::chrono::seconds(r));
         }
     }
 }
@@ -78,22 +74,22 @@ int main()
     cout << "Please enter number of patients: ";
     cin >> size;
 
-
+    thread doct(doctorState);
 
     thread p[size];
     for (i = 0; i < size; i++)
     {
         //p[i] = std::thread(patientHandler, i);
-        p[i] = thread(patientHandler, i);
+        p[i] = thread(patientHandler, i+1);
         patients.push(i);
     }
 
-    //thread doct(doctorState);
+
 
     for(i = 0; i < size; i++)
     {
         p[i].join();
     }
-    //doct.join();
+    doct.join();
     printf("\n\nProgram completed\n\n");
 }
