@@ -52,12 +52,21 @@ void patientHandler(int i)
         {
             sts.lock();
             cout << "\nPatient " << i << " waiting. Seats Occupied. " << ++seats <<" seats full.";
+            if (seats < 0){
+              cout << ++seats <<" seats full.";
+            }
+            else{
+              int temp = ++seats;
+              temp = temp * -1;
+              cout << temp <<" seats empty.";
+            }
             sts.unlock();
         }
         else
         {
             cout << "\nPatient " << i << " drinking coffee for " << i << " seconds.";
             this_thread::sleep_for(std::chrono::seconds(1));
+            //std::this_thread::sleep_for (std::chrono::seconds(1));
         }
     }
 }
@@ -65,18 +74,26 @@ void patientHandler(int i)
 int main()
 {
     printf("\n");
-    thread p[10];
-    for (int i = 0; i < 10; i++)
+    int size, i;
+    cout << "Please enter number of patients: ";
+    cin >> size;
+
+
+
+    thread p[size];
+    for (i = 0; i < size; i++)
     {
-        p[i] = std::thread(patientHandler, i);
+        //p[i] = std::thread(patientHandler, i);
+        p[i] = thread(patientHandler, i);
         patients.push(i);
     }
-    thread doct(doctorState);
 
-    for(int i = 0; i < 10; i++)
+    //thread doct(doctorState);
+
+    for(i = 0; i < size; i++)
     {
         p[i].join();
     }
-    doct.join();
-    printf("\n\n");
+    //doct.join();
+    printf("\n\nProgram completed\n\n");
 }
