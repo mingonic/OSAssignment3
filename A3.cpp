@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <pthread.h>
-#include <queue>
+#include <sys/queue.h>
 #include <mutex>
 
 using namespace std;
