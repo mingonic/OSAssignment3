@@ -74,7 +74,6 @@ int main() {
         pthread_join(patient_threads[i], NULL);
     }
     
-    //Marking program as finished
     finished = 1;
 
     //Doctor needs to wake up and exit
@@ -165,16 +164,17 @@ void *doctor(void *blank) {
 	  	    //Doctor says patient has finished being treated and patient is released
           	sem_post(&treating);
 
-            int s;
-            sem_getvalue(&d_sleep, &s);
-
-            //Checking if there are more patients in waiting room, and if doctor is awake
+            //Checking if there are more patients in waiting room
             //Otherwise the doctor will go back to sleep.
-            if (getSeats() != 0 && s == 0) {
+            if (getSeats() != 0) {
                 printf("Doctor is checking for next patient.\n");
                 
                 //Makes sure doctor stays awake using semaphor
-                sem_post(&d_sleep);
+                int s;
+                sem_getvalue(&d_sleep, &s);
+                if (s == 0) {
+                    sem_post(&d_sleep);
+                }
             } else {
                 printf("Doctor is going back to sleep.\n");
             }
