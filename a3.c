@@ -5,7 +5,7 @@
 #include <semaphore.h>
 #include <time.h>
 
-// The maximum number of customer threads.
+// The maximum number of patient threads.
 #define PATIENT_MAX 20
 sem_t wait_room;
 sem_t doctor_mutex;
